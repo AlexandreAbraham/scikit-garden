@@ -4,6 +4,16 @@ from distutils.version import LooseVersion
 import os
 
 from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext as _build_ext
+
+
+class build_ext(_build_ext):
+    def finalize_options(self):
+        _build_ext.finalize_options(self)
+        # Prevent numpy from thinking it is still in its setup process:
+        __builtins__.__NUMPY_SETUP__ = False
+        import numpy
+        self.include_dirs.append(numpy.get_include())
 
 
 DISTNAME = 'scikit-garden'
@@ -26,20 +36,12 @@ if os.name == 'posix':
     libraries.append('m')
 
 
-class get_numpy_include(object):
-    """Defer numpy.get_include() until after numpy is installed."""
-
-    def __str__(self):
-        import numpy
-        return numpy.get_include()
-
-
 extensions = []
 for name in ['_tree', '_splitter', '_criterion', '_utils']:
     extensions.append(Extension(
         'skgarden.mondrian.tree.{}'.format(name),
         sources=['skgarden/mondrian/tree/{}.pyx'.format(name)],
-        include_dirs=[get_numpy_include()],
+        include_dirs=[],
         libraries=libraries,
         extra_compile_args=['-O3'],
     ))
@@ -70,4 +72,5 @@ if __name__ == "__main__":
             ],
           install_requires=["numpy", "scipy", "scikit-learn>=0.18", "cython"],
           setup_requires=["cython", "numpy"],
+          cmdclass={'build_ext': build_ext},
           ext_modules=extensions)
