@@ -36,12 +36,21 @@ libraries = []
 if os.name == 'posix':
     libraries.append('m')
 
+
+class get_numpy_include(object):
+    """Defer numpy.get_include() until after numpy is installed."""
+
+    def __str__(self):
+        import numpy
+        return numpy.get_include()
+
+
 extensions = []
 for name in ['_tree', '_splitter', '_criterion', '_utils']:
     extensions.append(Extension(
         'skgarden.mondrian.tree.{}'.format(name),
         sources=['skgarden/mondrian/tree/{}.pyx'.format(name)],
-        include_dirs=[np.get_include()],
+        include_dirs=[get_numpy_include()],
         libraries=libraries,
         extra_compile_args=['-O3'],
     ))
