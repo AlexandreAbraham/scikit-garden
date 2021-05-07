@@ -3,7 +3,6 @@
 from distutils.version import LooseVersion
 import os
 
-import numpy as np
 from setuptools import Extension, find_packages, setup
 
 
