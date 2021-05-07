@@ -20,16 +20,6 @@ CYTHON_MIN_VERSION = '0.23'
 message = ('Please install cython with a version >= {0} in order '
            'to build a scikit-garden development version.').format(
            CYTHON_MIN_VERSION)
-try:
-    import Cython
-    if LooseVersion(Cython.__version__) < CYTHON_MIN_VERSION:
-        message += ' Your version of Cython was {0}.'.format(
-            Cython.__version__)
-        raise ValueError(message)
-    from Cython.Build import cythonize
-except ImportError as exc:
-    exc.args += (message,)
-    raise
 
 libraries = []
 if os.name == 'posix':
@@ -53,8 +43,6 @@ for name in ['_tree', '_splitter', '_criterion', '_utils']:
         libraries=libraries,
         extra_compile_args=['-O3'],
     ))
-extensions = cythonize(extensions)
-
 
 if __name__ == "__main__":
     setup(name=DISTNAME,
